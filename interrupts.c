@@ -14,7 +14,7 @@ __interrupt void ta1_isr(void)
     rtc -= 1024;
    // if(GenClock1)     GenClock1--; ????????
     
-    Rclock++;
+  //  Rclock++;
     Flags.systick=    1;
     Flags.radio=      1;
     __low_power_mode_off_on_exit();                  // для сброса WDT и подсчета времени
@@ -56,6 +56,13 @@ __interrupt void CC1101_ISR(void)
         // Check the CRC results
         if(RxBuffer[CRC_LQI_IDX] & CRC_OK)  
         P3OUT |= BIT2;                  // Toggle LED1      
+        *((pInt8U)&Rclock_ext)=RxBuffer[0];
+        if(Flags.sync) 
+        {
+          Rclock=Rclock_ext;
+          Flags.sync = 0;
+        }
+        diff=Rclock-Rclock_ext;  
  //ReceiveOff();
       }
       else if(transmitting)		    // TX end of packet

@@ -4,12 +4,12 @@
 extern volatile Flags_t           Flags;
 
 extern Int8U                  UartBuffer[];
-extern U8                     Seconds, Minutes, Houres, Days, Monthes, Years;
+extern U8                     Seconds, Minutes, Houres, Days, Monthes, Years, Rclock, Rclock_ext;
 extern Int16U                 RxCounter, TxPointer, Lcd_Buffer[];
 extern unsigned char          Strobe(unsigned char strobe);
 extern unsigned char          ReadSingleReg(unsigned char addr);
 extern U8                     HT1621_Buffer[], LcdPointer, Selector, PowerShow;
-
+extern S8                     diff;
 
 extern const Int16U           ConfigWord, NetAdr;
 extern const U8               Version[], SerialNumberStr[], MonthSize[];
@@ -47,7 +47,7 @@ void                          InitRadio(void);
 extern unsigned char          RxBuffer[PACKET_LEN+2];
 extern unsigned char          RxBufferLength;
 extern unsigned char          TxBuffer[PACKET_LEN];
-extern Int16U                 Rclock;
+//extern Int16U                 Rclock;
 
 extern unsigned char          transmitting; 
 extern unsigned char          receiving; 

@@ -370,7 +370,7 @@ static void put_one_char(char c, void *dummy)
 int printf(const char *format, ...)                    /* Our main entry */
 {
   va_list ap;
-  int nr_of_chars;//my comment!!!
+  int nr_of_chars;
 
   LcdPointer= 0;
   va_start(ap, format);      /* Variable argument begin */

@@ -54,8 +54,9 @@ void  lcd_process(void)
     switch(Selector)
     {
     case  TH_SHOW:
-      
-       printf(" Err %#6.*f", 5, 5);    break;
+        S8 diff;
+        diff=Rclock-Rclock_ext;
+        printf(" %3d  %3d ", Rclock_ext, diff);    break;
      /*
       switch(Errors & (TS_ERROR + HS_ERROR))
                    {

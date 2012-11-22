@@ -19,6 +19,7 @@ void main( void )
     {
       Flags.lcd_update = 1;
       Flags.systick    = 0;
+      Rclock++;
       date_time();
     }
 
@@ -45,7 +46,6 @@ void main( void )
    if(Flags.uart_recieve)    uart_process(); 
    if(Flags.lcd_update)      
    {
-     Selector = TH_SHOW;
      lcd_process();
    }
  }

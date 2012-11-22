@@ -35,8 +35,8 @@ __root const Int16U       NetAdr=        1;
 Int16U                  RxCounter;
 Int16U                  TxPointer;
 Int8U                   UartBuffer[272];
-Int16U                  Rclock=0;
-
+Int8U                   Rclock=0,Rclock_ext=0;
+S8                      diff;
 __root const U8   SerialNumberStr[]=         "66666666";
 __root const U8   Version[]=         "r1.00";
 __root const U8   MonthSize[12]=     { 31,28,31,30,31,30,31,31,30,31,30,31 };

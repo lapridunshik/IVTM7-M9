@@ -147,11 +147,12 @@ void  ini(void)
   ReceiveOn(); 
   receiving = 1; 
   transmitting = 0;
+  Flags.sync    = 1;
  // Инициализация переменных из сегмента RAM  
 
   if((Seconds > 59) || (Minutes > 59) || (Houres > 23)  || (Days > 31) || (Monthes > 12) || (Years < 12) || (Years > 99) )
   {
-    Seconds= Minutes= Houres= 0;
+    Rclock= Rclock_ext= diff= Seconds= Minutes= Houres= 0;
     Days= Monthes= 4;
     Years = 12;
   }

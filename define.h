@@ -101,6 +101,7 @@ typedef struct
    Int16U    uart_recieve:  1;
    Int16U    uart_end:      1;
    Int16U    radio:         1;
+   Int16U    sync:          1;
    
 } Flags_t;
 
