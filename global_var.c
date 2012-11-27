@@ -75,7 +75,7 @@ RF_SETTINGS rfSettings = {
     0x10,   // FREQ2     Frequency control word, high byte.
     0xA7,   // FREQ1     Frequency control word, middle byte.
     0x62,   // FREQ0     Frequency control word, low byte.
-    0xCA,   // MDMCFG4   Modem configuration.
+    0xC5,   // MDMCFG4   Modem configuration.
     0x83,   // MDMCFG3   Modem configuration.
     0x93,   // MDMCFG2   Modem configuration.
     0x22,   // MDMCFG1   Modem configuration.

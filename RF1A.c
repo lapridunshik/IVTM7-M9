@@ -68,8 +68,12 @@ unsigned char ReadSingleReg(unsigned char addr)
   else
     // Send address + Instruction + 1 dummy byte (auto-read)
     RF1AINSTR1B = (addr | RF_STATREGRD);    
-  
-  while (!(RF1AIFCTL1 & RFDOUTIFG) );
+    S16 cnt=0;
+  while (!(RF1AIFCTL1 & RFDOUTIFG) )
+      {
+     cnt++;
+     if(cnt>10) break;
+      }
   data_out = RF1ADOUTB;                    // Read data and clears the RFDOUTIFG
 
   return data_out;
