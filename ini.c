@@ -13,8 +13,9 @@ void  choose_uart_speed(void)
 
 void  ini(void)
 {
-  __disable_interrupt(); 
+  __disable_interrupt();
   
+  SFRIE1= WDTIE;
   SFRIE1= SFRIFG1= SYSCTL= 0;         // вс€ку дребедень выкл
   SFRRPCR=  BIT2 + BIT3;              // ресетный резистор вкл
   
@@ -93,7 +94,7 @@ void  ini(void)
   */
   
   UCSCTL1=  DCORSEL_1;                                        // 0.5...3.5 MHz
-  UCSCTL2=  31;                                               // 32,768*(31+1) ~ 1MHz на выходе FLL
+  UCSCTL2=  63;                                               // 32,768*(31+1) ~ 2MHz на выходе FLL
   UCSCTL3=  FLLREFDIV_0 + SELREF__XT1CLK;                     // 32kHz на вход FLL
 
   UCSCTL5=  DIVA__32;                                         // ACLK = XT1/32 = 1024 Hz
@@ -106,9 +107,9 @@ void  ini(void)
   UCSCTL4=    SELM__DCOCLKDIV + SELS__DCOCLKDIV + SELA__XT1CLK;    // MCLK - FLL(2MHz), SMCLK - FLL(2MHz), ACLK - XT1/32(1024Hz)
   
   // TA0
-  TA0CTL=     TASSEL_1 + MC__UP + TACLR; //ACLK
-  TA0CCTL0=   OUTMOD_0 + OUT;  
-  TA0CCR3=    500;
+  TA0CTL=     TASSEL__SMCLK + ID__8 + MC__STOP + TACLR; //SMCLK
+  TA0CCTL0=   CCIE;  
+  TA0CCR0 = 0x0064;
   
   // TA1 inclk = ACLK (1024Hz)
   TA1CTL=     TASSEL_1 + MC__UP + TACLR + TAIE;  // clk= ACLK прерывани€ настраиваютс€ по режимам
@@ -130,7 +131,7 @@ void  ini(void)
   UCB0CTL1=   UCSSEL__SMCLK + UCSWRST;  // SMCLK (1MHz)
   UCB0CTL0=   UCSYNC + UCMST + UCCKPH;
   UCB0STAT=   0;
-  UCB0BRW=    28;                       // bitrate ~ 150 kbit
+  UCB0BRW=    14;                       // bitrate ~ 150 kbit
  // UCB0MCTL=   0;
   UCB0CTL1=   UCSSEL__SMCLK; 
   
@@ -144,10 +145,8 @@ void  ini(void)
   ResetRadioCore();     
   InitRadio();
   ReceiveOff();
-  ReceiveOn(); 
   receiving = 1; 
   transmitting = 0;
-  Flags.sync    = 1;
  // »нициализаци€ переменных из сегмента RAM  
 
   if((Seconds > 59) || (Minutes > 59) || (Houres > 23)  || (Days > 31) || (Monthes > 12) || (Years < 12) || (Years > 99) )
@@ -156,5 +155,6 @@ void  ini(void)
     Days= Monthes= 4;
     Years = 12;
   }
-SOUND_OFF;
+
+//SOUND_OFF;
 }

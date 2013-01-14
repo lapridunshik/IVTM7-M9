@@ -1,9 +1,12 @@
 #include  "define.h"
 
 // „ÎÓ·‡Î¸Ì˚Â
+S32                       T_poll_tuning=0;
 U16                       Lcd_Buffer[10];
 U16                       Time2Write   = 30;
 U16                       SD_Clock;
+S16                       Tuner=0;
+U16                       rtc_ref=0;
 U8                        FlashBuffer[128];
 U8                        HT1621_Buffer[16];
 U8                        LcdPointer;
@@ -13,7 +16,8 @@ U8                        KeyClock;
 U8                        HumidyUnits;
 U8                        PowLevel = 3;
 U8                        PowerShow = 99;
-
+U8                        k=0;
+U8                        c=0;
 
 volatile Flags_t          Flags;
 
@@ -23,7 +27,11 @@ volatile Flags_t          Flags;
 __root __no_init U8       Seconds, Minutes, Houres, Days, Monthes, Years;
 __root __no_init U8       transmitting, receiving;
 __root __no_init U8       RxBuffer[PACKET_LEN+2], RxBufferLength;
-__root  unsigned char     TxBuffer[PACKET_LEN]= {0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
+__root __no_init U16      T_poll=5;     
+__root  unsigned char     TxBuffer[PACKET_LEN]= {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xAA, 0xBB};
+
+  
+
 #pragma dataseg= default
 
 #pragma constseg= INFOD
@@ -37,6 +45,9 @@ Int16U                  TxPointer;
 Int8U                   UartBuffer[272];
 Int8U                   Rclock=0,Rclock_ext=0;
 S8                      diff;
+Int16S                  RSSI_Buffer[250]; 
+
+
 __root const U8   SerialNumberStr[]=         "66666666";
 __root const U8   Version[]=         "r1.00";
 __root const U8   MonthSize[12]=     { 31,28,31,30,31,30,31,31,30,31,30,31 };
@@ -70,7 +81,7 @@ __root const U8   MonthSize[12]=     { 31,28,31,30,31,30,31,31,30,31,30,31 };
 // GDO0 signal selection = ( 6) Asserts when sync word has been sent / received, and de-asserts at the end of the packet
 // GDO2 signal selection = (41) RF_RDY
 RF_SETTINGS rfSettings = {
- 0x06,   // FSCTRL1   Frequency synthesizer control.
+    0x06,   // FSCTRL1   Frequency synthesizer control.
     0x00,   // FSCTRL0   Frequency synthesizer control.
     0x10,   // FREQ2     Frequency control word, high byte.
     0xA7,   // FREQ1     Frequency control word, middle byte.
@@ -85,11 +96,16 @@ RF_SETTINGS rfSettings = {
     0x56,   // FREND1    Front end RX configuration.
     0x10,   // FREND0    Front end TX configuration.
     0x10,   // MCSM0     Main Radio Control State Machine configuration.
+    0x33,   // MCSM1     Main Radio Control State Machine configuration.
+    0x07,   // MCSM2     Main Radio Control State Machine configuration.
     0x16,   // FOCCFG    Frequency Offset Compensation Configuration.
     0x6C,   // BSCFG     Bit synchronization Configuration.
     0x03,   // AGCCTRL2  AGC control.
     0x40,   // AGCCTRL1  AGC control.
     0x91,   // AGCCTRL0  AGC control.
+    0x80,   // WOREVT1   High Byte Event0 Timeout
+    0x00,   // WOREVT0   Low Byte Event0 Timeout
+    0xF0,   // WORCTRL   Wake On Radio Control
     0xE9,   // FSCAL3    Frequency synthesizer calibration.
     0x2A,   // FSCAL2    Frequency synthesizer calibration.
     0x00,   // FSCAL1    Frequency synthesizer calibration.
@@ -99,10 +115,10 @@ RF_SETTINGS rfSettings = {
     0x35,   // TEST1     Various test settings.
     0x09,   // TEST0     Various test settings.
     0x47,   // FIFOTHR   RXFIFO and TXFIFO thresholds.
- //   0x29,   // IOCFG2    GDO2 output pin configuration.
+    0x29,   // IOCFG2    GDO2 output pin configuration.
 //  0x06,   // IOCFG0    GDO0 output pin configuration. Refer to SmartRFÆ Studio User Manual for detailed pseudo register explanation.
-    0x04,   // PKTCTRL1  Packet automation control.
+    0x84,   // PKTCTRL1  Packet automation control.
     0x04,   // PKTCTRL0  Packet automation control.
     0x00,   // ADDR      Device address.
-    0x05    // PKTLEN    Packet length.
+    0x0C    // PKTLEN    Packet length.
 };

@@ -1,10 +1,12 @@
 #include  "define.h"
 
+ 
+
 void Prog_LCD_load_data(void)
 {
     // индикация подключения USB и SD
   /*
-    if(USBFlags.UsbConfigured)  LIGHT_USB;
+      LIGHT_USB;
     if(SD_Flags.sd_valid)       LIGHT_SD;
     
     // индикация заряда батареи
@@ -16,6 +18,7 @@ void Prog_LCD_load_data(void)
     }
     LIGHT_BAT0;
     */
+    if(Flags.radio_online) LIGHT_RF;
     // загрузка индикатора данными
     LCD_load_data();
 }
@@ -53,10 +56,27 @@ void  lcd_process(void)
   */      
     switch(Selector)
     {
+    case  RADIO_SEARCH:  // search for radiosensor TX -> RX _1sec_ TX ->.... 3 times
+
+       printf(" ---- HUNT ");
+       Flags.radio = 1;
+    if (Flags.radio_found)
+      {
+        printf(" find HUNT ");
+        Selector= TH_SHOW;
+        c=0;
+//        work_on();          // WOR interrupts on 
+        Flags.radio = 0;
+        Flags.radio_found = 0;
+        break;
+      }
+       
+    break;    
+      
     case  TH_SHOW:
-        S8 diff;
-        diff=Rclock-Rclock_ext;
-        printf(" %3d  %3d ", Rclock_ext, diff);    break;
+              
+ 
+        printf(" %3d  %3d ", RSSI_Buffer[66], Tuner);    break;
      /*
       switch(Errors & (TS_ERROR + HS_ERROR))
                    {
@@ -107,9 +127,14 @@ sel_w_seg:
         */                             
     case  START_MODE:                   
                    printf(" %s P%3d", Version, PowerShow); LIGHT_pr;
-                   Selector = TH_SHOW;
+                   Selector = RADIO_SEARCH; 
+                   //Selector = TH_SHOW;
                    break;
                     
+    case  FAIL:          
+                   printf(" FAIL FAIL");
+                   break;
+      
     default:       Selector= TH_SHOW;                  
     }
     

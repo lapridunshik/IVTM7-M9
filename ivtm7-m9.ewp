@@ -641,11 +641,11 @@
         <debug>1</debug>
         <option>
           <name>XOutOverride</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>OutputFile</name>
-          <state>ivtm7-m9.txt</state>
+          <state>ivtm7-m9.d43</state>
         </option>
         <option>
           <name>OutputFormat</name>
@@ -803,7 +803,7 @@
         </option>
         <option>
           <name>DebugInformation</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>RuntimeControl</name>
@@ -1987,10 +1987,10 @@
       <name>$PROJ_DIR$\printf.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\RF1A.c</name>
+      <name>$PROJ_DIR$\radio_func.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\RF_Toggle_LED_Demo.c</name>
+      <name>$PROJ_DIR$\RF1A.c</name>
     </file>
   </group>
   <group>

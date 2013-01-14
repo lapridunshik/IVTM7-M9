@@ -147,17 +147,7 @@ void WriteBurstReg(unsigned char addr, unsigned char *buffer, unsigned char coun
   }
 }
 
-// *****************************************************************************
-// @fn          ResetRadioCore
-// @brief       Reset the radio core using RF_SRES command
-// @param       none
-// @return      none
-// *****************************************************************************
-void ResetRadioCore (void)
-{
-  Strobe(RF_SRES);                          // Reset the Radio Core
-  Strobe(RF_SNOP);                          // Reset Radio Pointer
-}
+
 
 // *****************************************************************************
 // @fn          WriteRfSettings
@@ -181,11 +171,16 @@ void WriteRfSettings(RF_SETTINGS *pRfSettings) {
     WriteSingleReg(FREND1,   pRfSettings->frend1);
     WriteSingleReg(FREND0,   pRfSettings->frend0);
     WriteSingleReg(MCSM0 ,   pRfSettings->mcsm0);
+    WriteSingleReg(MCSM1 ,   pRfSettings->mcsm1);    
+    WriteSingleReg(MCSM2 ,   pRfSettings->mcsm2);
     WriteSingleReg(FOCCFG,   pRfSettings->foccfg);
     WriteSingleReg(BSCFG,    pRfSettings->bscfg);
     WriteSingleReg(AGCCTRL2, pRfSettings->agcctrl2);
     WriteSingleReg(AGCCTRL1, pRfSettings->agcctrl1);
     WriteSingleReg(AGCCTRL0, pRfSettings->agcctrl0);
+    WriteSingleReg(WOREVT1,  pRfSettings->worevt1);
+    WriteSingleReg(WOREVT0,  pRfSettings->worevt0);
+    WriteSingleReg(WORCTRL,  pRfSettings->worctrl);
     WriteSingleReg(FSCAL3,   pRfSettings->fscal3);
     WriteSingleReg(FSCAL2,   pRfSettings->fscal2);
     WriteSingleReg(FSCAL1,   pRfSettings->fscal1);
@@ -195,7 +190,7 @@ void WriteRfSettings(RF_SETTINGS *pRfSettings) {
     WriteSingleReg(TEST1,    pRfSettings->test1);
     WriteSingleReg(TEST0,    pRfSettings->test0);
     WriteSingleReg(FIFOTHR,  pRfSettings->fifothr);
-//   WriteSingleReg(IOCFG2,   pRfSettings->iocfg2);
+    WriteSingleReg(IOCFG2,   pRfSettings->iocfg2);
 //    WriteSingleReg(IOCFG0,   pRfSettings->iocfg0);
     WriteSingleReg(PKTCTRL1, pRfSettings->pktctrl1);
     WriteSingleReg(PKTCTRL0, pRfSettings->pktctrl0);

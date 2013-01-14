@@ -27,6 +27,8 @@
 #define TH_SHOW               2
 #define PH_SHOW               3
 #define SD_SHOW               4
+#define RADIO_SEARCH          5
+#define FAIL                  6
 
 #define LIGHT_BAT3              HT1621_Buffer[14] |= 0x01
 #define LIGHT_BAT2              HT1621_Buffer[13] |= 0x01
@@ -85,13 +87,14 @@
 
 #define PMM_STATUS_OK         0
 #define PMM_STATUS_ERROR      1
+#define TYPE_TUNE             1
+#define TYPE_DATA             2
 
-
-#define  PACKET_LEN         (0x05)			// PACKET_LEN <= 61
+#define  PACKET_LEN         (0x0C)			// PACKET_LEN <= 61
 #define  RSSI_IDX           (PACKET_LEN)    // Index of appended RSSI 
 #define  CRC_LQI_IDX        (PACKET_LEN+1)  // Index of appended LQI, checksum
 #define  CRC_OK             (BIT7)          // CRC_OK bit 
-#define  PATABLE_VAL        (0x51)          // 0 dBm output 
+#define  PATABLE_VAL        (0xC6)          // 10 dBm output 
 
 
 typedef struct 
@@ -101,7 +104,10 @@ typedef struct
    Int16U    uart_recieve:  1;
    Int16U    uart_end:      1;
    Int16U    radio:         1;
-   Int16U    sync:          1;
+   Int16U    rssi:          1;
+   Int16U    radio_found:   1;
+   Int16U    radio_tune:    1;
+   Int16U    radio_online:  1;
    
 } Flags_t;
 
@@ -121,11 +127,16 @@ typedef struct S_RF_SETTINGS {
     unsigned char frend1;    // Front end RX configuration.
     unsigned char frend0;    // Front end RX configuration.
     unsigned char mcsm0;     // Main Radio Control State Machine configuration.
+    unsigned char mcsm1;     // Main Radio Control State Machine configuration.
+    unsigned char mcsm2;     // Main Radio Control State Machine configuration.
     unsigned char foccfg;    // Frequency Offset Compensation Configuration.
     unsigned char bscfg;     // Bit synchronization Configuration.
     unsigned char agcctrl2;  // AGC control.
     unsigned char agcctrl1;  // AGC control.
     unsigned char agcctrl0;  // AGC control.
+    unsigned char worevt1;    // WOREVT1   High Byte Event0 Timeout
+    unsigned char worevt0;    // WOREVT0   Low Byte Event0 Timeout
+    unsigned char worctrl;    // WORCTRL   Wake On Radio Control
     unsigned char fscal3;    // Frequency synthesizer calibration.
     unsigned char fscal2;    // Frequency synthesizer calibration.
     unsigned char fscal1;    // Frequency synthesizer calibration.
@@ -135,7 +146,7 @@ typedef struct S_RF_SETTINGS {
     unsigned char test1;     // Various test settings.
     unsigned char test0;     // Various test settings.
     unsigned char fifothr;   // RXFIFO and TXFIFO thresholds.
- //   unsigned char iocfg2;    // GDO2 output pin configuration
+    unsigned char iocfg2;    // GDO2 output pin configuration
  //   unsigned char iocfg0;    // GDO0 output pin configuration
     unsigned char pktctrl1;  // Packet automation control.
     unsigned char pktctrl0;  // Packet automation control.

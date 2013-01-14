@@ -1,22 +1,53 @@
 #include  "define.h"
 
+static U16   rtc, rtc_tune;
+
+#pragma vector=WDT_VECTOR
+__interrupt void wdt_isr(void)
+
+{
+  SFRIFG1 &= ~WDTIFG;
+  __no_operation(); 
+}
+
+
+#pragma vector=TIMER0_A0_VECTOR
+__interrupt void ta00_isr(void)
+{
+  Flags.rssi=      1;
+}
+
+#pragma vector=TIMER0_A1_VECTOR
+__interrupt void ta0_isr(void)
+{          
+    switch(TA0IV)
+    
+  case 14:
+    {
+      __no_operation();      
+    }
+    
+}
+
 #pragma vector=TIMER1_A1_VECTOR
 __interrupt void ta1_isr(void)
 {          
-  static U16   rtc;  
+ 
+ 
   
   TA1CTL &= ~TAIFG;
 
   // RTC 
   rtc += (TA1CCR0 + 1);
+  
+  
   if(rtc >= 1024)
   {
     rtc -= 1024;
    // if(GenClock1)     GenClock1--; ????????
-    
-  //  Rclock++;
+
     Flags.systick=    1;
-    Flags.radio=      1;
+ //   Flags.radio=      1;
     __low_power_mode_off_on_exit();                  // для сброса WDT и подсчета времени
   }
   
@@ -43,42 +74,66 @@ __interrupt void CC1101_ISR(void)
     case 20:                                // RFIFG9
       if(receiving)			    // RX end of packet
       {
-
         // Read the length byte from the FIFO       
         RxBufferLength = ReadSingleReg( RXBYTES );
-       
-        
         ReadBurstReg(RF_RXFIFORD, RxBuffer, RxBufferLength); 
 
-        // Stop here to see contents of RxBuffer
+        if(RxBuffer[5]==TYPE_TUNE)
+        {
+          Flags.radio_found = 1;
+          Strobe ( RF_SWORRST );
+          work_on();          // WOR interrupts on
+          *((pInt8U)&rtc_ref)=RxBuffer[0];  
+        }
+        
+        *((pInt8U)&rtc_tune)=RxBuffer[0];
+         Tuner=rtc_ref-rtc_tune;
+         Flags.radio_tune = 1;
+         Flags.radio_online = 1;
+         // Stop here to see contents of RxBuffer
         __no_operation(); 		   
-
+        
         // Check the CRC results
         if(RxBuffer[CRC_LQI_IDX] & CRC_OK)  
         P3OUT |= BIT2;                  // Toggle LED1      
-        *((pInt8U)&Rclock_ext)=RxBuffer[0];
-        if(Flags.sync) 
-        {
-          Rclock=Rclock_ext;
-          Flags.sync = 0;
-        }
-        diff=Rclock-Rclock_ext;  
- //ReceiveOff();
-      }
+         k=0;
+         c=0;
+         receiving = 0;
+      /*
+        *((pInt8U)&T_poll_new)=RxBuffer[0];
+        Seconds = RxBuffer[2];
+        Minutes = RxBuffer[3];
+        Houres = RxBuffer[4];
+        */       
+        
+       }
+  
       else if(transmitting)		    // TX end of packet
       {
-        RF1AIE &= ~BIT9;                    // Disable TX end-of-packet interrupt
+        RF1AIE &= ~(BITB + BIT9);                 // Disable TX end-of-packet interrupt
         P3OUT &= ~(BIT0+BIT1+BIT2);                     // Turn off LED after Transmit               
-        transmitting = 0; 
+        transmitting = 0;
       }
       else while(1); 			    // trap 
       break;
     case 22: break;                         // RFIFG10
-    case 24: break;                         // RFIFG11
+    case 24:   TA0CTL |= MC__UP + TACLR;     // RFIFG11
     case 26: break;                         // RFIFG12
     case 28: break;                         // RFIFG13
-    case 30: break;                         // RFIFG14
-    case 32: break;                         // RFIFG15
+    case 30:                                // RFIFG14
+    {
+      ReceiveOff();
+      Flags.radio_online = 0;
+  //    
+    }
+             break;
+    case 32:                         // RFIFG15
+    {
+   //   ReceiveOn();
+      receiving = 1; 
+  //    
+    }
+             break;   
   }  
 //  __bic_SR_register_on_exit(LPM3_bits);     
 }

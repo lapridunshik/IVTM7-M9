@@ -115,7 +115,7 @@ unsigned int SetVCore (unsigned char level)
 //****************************************************************************//
 unsigned int SetVCoreUp (unsigned char level)
 {
-  unsigned int PMMRIE_backup,SVSMHCTL_backup;
+  unsigned int PMMRIE_backup, SVSMHCTL_backup;
 
   // Open PMM registers for write access
   PMMCTL0_H = 0xA5;
