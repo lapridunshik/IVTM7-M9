@@ -116,6 +116,7 @@ RF_SETTINGS rfSettings = {
     0x09,   // TEST0     Various test settings.
     0x47,   // FIFOTHR   RXFIFO and TXFIFO thresholds.
     0x29,   // IOCFG2    GDO2 output pin configuration.
+    0x1C,   // IOCFG1    GDO1 output pin configuration.
 //  0x06,   // IOCFG0    GDO0 output pin configuration. Refer to SmartRF® Studio User Manual for detailed pseudo register explanation.
     0x84,   // PKTCTRL1  Packet automation control.
     0x04,   // PKTCTRL0  Packet automation control.

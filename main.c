@@ -31,14 +31,13 @@ void main( void )
      k++;
      TA0CTL |=TACLR;
      Flags.rssi = 0;
-     if(k>120)
+     if(k>70)
      {
        k=0;
        TA0CTL= TASSEL__SMCLK + ID__8 + MC__STOP;
      }
     }
     
-
         if (Flags.radio)       
        {
           P3OUT &= ~(BIT0+BIT1+BIT2); 

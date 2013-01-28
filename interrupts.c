@@ -63,7 +63,11 @@ __interrupt void CC1101_ISR(void)
   {
     case  0: break;                         // No RF core interrupt pending                                            
     case  2: break;                         // RFIFG0 
-    case  4: break;                         // RFIFG1
+    case  4:                                // RFIFG1
+        RF1AIE &= ~(BIT1+BIT9+BITB);
+        Strobe(RF_SWOR);                    // Go back to sleep
+      break;
+
     case  6: break;                         // RFIFG2
     case  8: break;                         // RFIFG3
     case 10: break;                         // RFIFG4
@@ -74,6 +78,8 @@ __interrupt void CC1101_ISR(void)
     case 20:                                // RFIFG9
       if(receiving)			    // RX end of packet
       {
+
+        RF1AIE &= ~(BIT1+BIT9+BITB);
         // Read the length byte from the FIFO       
         RxBufferLength = ReadSingleReg( RXBYTES );
         ReadBurstReg(RF_RXFIFORD, RxBuffer, RxBufferLength); 
@@ -81,13 +87,14 @@ __interrupt void CC1101_ISR(void)
         if(RxBuffer[5]==TYPE_TUNE)
         {
           Flags.radio_found = 1;
-          Strobe ( RF_SWORRST );
+          Strobe(RF_SWOR); 
+//          Strobe ( RF_SWORRST );
           work_on();          // WOR interrupts on
           *((pInt8U)&rtc_ref)=RxBuffer[0];  
         }
         
         *((pInt8U)&rtc_tune)=RxBuffer[0];
-         Tuner=rtc_ref-rtc_tune;
+         Tuner=rtc_ref-rtc_tune+75;
          Flags.radio_tune = 1;
          Flags.radio_online = 1;
          // Stop here to see contents of RxBuffer
@@ -95,7 +102,6 @@ __interrupt void CC1101_ISR(void)
         
         // Check the CRC results
         if(RxBuffer[CRC_LQI_IDX] & CRC_OK)  
-        P3OUT |= BIT2;                  // Toggle LED1      
          k=0;
          c=0;
          receiving = 0;
@@ -110,28 +116,29 @@ __interrupt void CC1101_ISR(void)
   
       else if(transmitting)		    // TX end of packet
       {
-        RF1AIE &= ~(BITB + BIT9);                 // Disable TX end-of-packet interrupt
-        P3OUT &= ~(BIT0+BIT1+BIT2);                     // Turn off LED after Transmit               
+        RF1AIE &= ~(BITB + BIT9 + BIT1);                 // Disable TX end-of-packet interrupt
         transmitting = 0;
       }
       else while(1); 			    // trap 
+      //__bic_SR_register_on_exit(LPM3_bits);
       break;
     case 22: break;                         // RFIFG10
-    case 24:   TA0CTL |= MC__UP + TACLR;     // RFIFG11
+    case 24:   TA0CTL |= MC__UP + TACLR; break;     // RFIFG11
     case 26: break;                         // RFIFG12
     case 28: break;                         // RFIFG13
     case 30:                                // RFIFG14
-    {
-      ReceiveOff();
-      Flags.radio_online = 0;
-  //    
-    }
-             break;
+      RF1AIE |= BIT9 + BIT1 + BITB;                
+      RF1AIFG &= ~(BIT9 + BIT1 + BITB);   	    
+      RF1AIES |= BIT9;                      // Falling edge of RFIFG9
+      RF1AIFG &= ~BIT9;                     // Clear a pending interrupt
+      RF1AIE  |= BIT9;                      // Enable the interrupt      
+      Strobe( RF_SRX );      
+      break;     
     case 32:                         // RFIFG15
     {
    //   ReceiveOn();
       receiving = 1; 
-  //    
+
     }
              break;   
   }  
